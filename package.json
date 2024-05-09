@@ -1,0 +1,12 @@
+{
+  "name": "CNCMicroscope",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^30.0.2",
+    "node-webcam": "^0.8.2"
+  }
+}
