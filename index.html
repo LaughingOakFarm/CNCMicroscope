@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; img-src 'self' data:;">
     <meta charset="UTF-8">
-    <title>Steam Deck Controller Demo</title>
-    <script>
-        window.controller.onInput((input) => {
-            const log = document.createElement('p');
-            log.textContent = input;
-            document.body.appendChild(log);
-        });
-    </script>
+    <title>Image Display</title>
 </head>
 <body>
-    <h1>Steam Deck Controller Input</h1>
-    <div id="log"></div>
+    <h1>Live Image Feed</h1>
+    <img id="live-image" src="" alt="Live Camera Feed">
+    <script src="renderer.js"></script>
 </body>
 </html>

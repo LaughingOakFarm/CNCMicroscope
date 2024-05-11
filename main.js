@@ -1,29 +1,50 @@
 const { app, BrowserWindow } = require('electron');
-const path = require('path');
-const HID = require('node-hid');
+const express = require('express');
+const bodyParser = require('body-parser');
+const server = express();
+const serverPort = 8000; // Define a port for the HTTP server
 
+server.use(bodyParser.json({ limit: '50mb' }));
 let mainWindow;
 
 function createWindow() {
-    mainWindow = new BrowserWindow({
+    const path = require('path');
+
+    const mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-        },
-    });
-
-    mainWindow.loadFile('index.html');
-}
-
-app.whenReady().then(() => {
-    createWindow();
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
+            preload: path.join(__dirname, 'preload.js'), // Make sure this path is correct
+            contextIsolation: true,
+            nodeIntegration: false
         }
     });
-});
+
+    // Open Developer Tools - for development use
+    mainWindow.webContents.openDevTools();
+
+    mainWindow.loadFile('index.html');
+
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
+
+    // Start the Express server within the Electron app
+    server.post('/image', (req, res) => {
+        const imageBase64 = req.body.image;
+        console.log("Received an image");
+        if (mainWindow) {
+            mainWindow.webContents.send('image', imageBase64);
+        }
+        res.send('Image received');
+    });
+
+    server.listen(serverPort, () => {
+        console.log(`Server listening on port ${serverPort}`);
+    });
+}
+
+app.on('ready', createWindow);
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -31,28 +52,8 @@ app.on('window-all-closed', () => {
     }
 });
 
-// List connected HID devices and find the Steam Deck controller
-const devices = HID.devices();
-const steamDeckDevice = devices.find(device => {
-    console.log(device);
-    // Replace these with your Steam Deck controller's VendorID and ProductID
-    return device.vendorId === 10462 && device.productId === 4613;
+app.on('activate', () => {
+    if (mainWindow === null) {
+        createWindow();
+    }
 });
-
-if (steamDeckDevice) {
-    const controller = new HID.HID(steamDeckDevice.path);
-
-    // Example: handle incoming data for buttons
-    controller.on('data', (data) => {
-        const input = parseControllerInput(data);
-        mainWindow.webContents.send('controller-input', input);
-    });
-} else {
-    console.error('Steam Deck controller not found!');
-}
-
-// Parses the incoming data buffer into readable input events
-function parseControllerInput(data) {
-    console.log(data);
-    return data;
-}
