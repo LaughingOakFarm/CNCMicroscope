@@ -3,9 +3,34 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const server = express();
 const serverPort = 8000; // Define a port for the HTTP server
+var NodeWebcam = require("node-webcam");
 
 server.use(bodyParser.json({ limit: '50mb' }));
 let mainWindow;
+
+// Default options
+var opts = {
+    width: 1280,
+    height: 720,
+    quality: 100,
+    delay: 0,
+    saveShots: true,
+    output: "jpeg",
+    device: false,
+    callbackReturn: "location",
+    verbose: false
+};
+
+var Webcam = NodeWebcam.create(opts);
+
+// Capture image
+Webcam.capture("test_picture", function(err, data) {
+    if (err) {
+        console.error(err);
+    } else {
+        console.log("Image saved:", data);
+    }
+});
 
 function createWindow() {
     const path = require('path');
@@ -19,9 +44,6 @@ function createWindow() {
             nodeIntegration: false
         }
     });
-
-    // Open Developer Tools - for development use
-    mainWindow.webContents.openDevTools();
 
     mainWindow.loadFile('index.html');
 
