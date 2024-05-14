@@ -1,8 +1,4 @@
-alert("Renderer script is running");
-
-
 electron.receiveImage('image', (imageBase64) => {
-    console.log("Image Data Received in Renderer (truncated):", imageBase64.substr(0, 100));
     const img = document.getElementById('live-image');
     img.src = `data:image/png;base64,${imageBase64}`;
 });
@@ -13,3 +9,17 @@ if (window.electron) {
 } else {
     console.log('Electron object is NOT available');
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const video = document.getElementById('webcam');
+
+    if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                video.srcObject = stream;
+            })
+            .catch(function (error) {
+                console.log("Something went wrong!", error);
+            });
+    }
+});
