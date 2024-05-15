@@ -12,6 +12,7 @@
     "electron": "^30.0.2",
     "express": "^4.19.2",
     "ffi-napi": "^4.0.3",
+    "fs": "^0.0.1-security",
     "node-hid": "^3.0.0",
     "node-webcam": "^0.8.2",
     "ref-array-napi": "^1.2.2",
